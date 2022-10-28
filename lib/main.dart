@@ -44,62 +44,151 @@ class MyHomePage extends StatelessWidget {
     final counterBloc = context.read<CounterBloc>();
 
     return Scaffold(
-      floatingActionButton: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          IconButton(
-              onPressed: () {
-                // final counterBloc = BlocProvider.of<CounterBloc>(context);
-                counterBloc.add(CounterIncEvent());
-              },
-              icon: Icon(Icons.plus_one)
-          ),
-          IconButton(
-              onPressed: () {
-                final counterBloc = context.read<CounterBloc>();
-                counterBloc.add(CounterDecEvent());
-              },
-              icon: Icon(Icons.exposure_minus_1)
-          ),
-          IconButton(
-              onPressed: () {
-                final userBloc = context.read<UserBloc>();
-                final counterBloc = context.read<CounterBloc>();
-                userBloc.add(UserGetUsersEvent(counterBloc.state));
-              },
-              icon: Icon(Icons.person)
-          ),
-          IconButton(
-              onPressed: () {
-                final userBloc = context.read<UserBloc>();
-                final counterBloc = context.read<CounterBloc>();
-                // Navigator.push(context,
-                //     MaterialPageRoute(
-                //       builder: (_) => Job(userBloc: userBloc),
-                //       )
-                //     )
-                // );
+      floatingActionButton: BlocConsumer<CounterBloc, int>(
+        listenWhen: (previous, current) => previous > current,
+        listener: (context, state) {
+          if (state == 0) {
+            Scaffold.of(context).showBottomSheet(
+                    (context) => Container(
+                  color: Colors.blue,
+                  width: double.infinity,
+                  height: 30,
+                  child: Text('State is 0'),
+                )
+            );
+          }
+        },
+        builder: (context, state) => Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(state.toString()),
+            IconButton(
+                onPressed: () {
+                  // final counterBloc = BlocProvider.of<CounterBloc>(context);
+                  counterBloc.add(CounterIncEvent());
+                },
+                icon: Icon(Icons.plus_one)
+            ),
+            IconButton(
+                onPressed: () {
+                  final counterBloc = context.read<CounterBloc>();
+                  counterBloc.add(CounterDecEvent());
+                },
+                icon: Icon(Icons.exposure_minus_1)
+            ),
+            IconButton(
+                onPressed: () {
+                  final userBloc = context.read<UserBloc>();
+                  final counterBloc = context.read<CounterBloc>();
+                  userBloc.add(UserGetUsersEvent(counterBloc.state));
+                },
+                icon: Icon(Icons.person)
+            ),
+            IconButton(
+                onPressed: () {
+                  final userBloc = context.read<UserBloc>();
+                  final counterBloc = context.read<CounterBloc>();
+                  // Navigator.push(context,
+                  //     MaterialPageRoute(
+                  //       builder: (_) => Job(userBloc: userBloc),
+                  //       )
+                  //     )
+                  // );
 
-                // Navigator.push(context,
-                //     MaterialPageRoute(
-                //       builder: (_) => BlocProvider.value(
-                //         value: userBloc,
-                //         child: Job(),
-                //       )
-                //     )
-                // );
+                  // Navigator.push(context,
+                  //     MaterialPageRoute(
+                  //       builder: (_) => BlocProvider.value(
+                  //         value: userBloc,
+                  //         child: Job(),
+                  //       )
+                  //     )
+                  // );
 
-                Navigator.push(context,
-                    MaterialPageRoute(
-                        builder: (_) => Job()
-                    )
-                );
-                userBloc.add(UserGetUsersJobEvent(counterBloc.state));
-              },
-              icon: Icon(Icons.work)
-          )
-        ],
+                  Navigator.push(context,
+                      MaterialPageRoute(
+                          builder: (_) => Job()
+                      )
+                  );
+                  userBloc.add(UserGetUsersJobEvent(counterBloc.state));
+                },
+                icon: Icon(Icons.work)
+            )
+          ],
+        ),
       ),
+
+      // floatingActionButton: BlocListener<CounterBloc, int>(
+      //   listenWhen: (previous, current) => previous > current,
+      //   listener: (context, state) {
+      //     if (state == 0) {
+      //       Scaffold.of(context).showBottomSheet(
+      //               (context) => Container(
+      //             color: Colors.blue,
+      //             width: double.infinity,
+      //             height: 30,
+      //             child: Text('State is 0'),
+      //           )
+      //       );
+      //     }
+      //   },
+      //   child: Column(
+      //     mainAxisAlignment: MainAxisAlignment.center,
+      //     children: [
+      //       IconButton(
+      //           onPressed: () {
+      //             // final counterBloc = BlocProvider.of<CounterBloc>(context);
+      //             counterBloc.add(CounterIncEvent());
+      //           },
+      //           icon: Icon(Icons.plus_one)
+      //       ),
+      //       IconButton(
+      //           onPressed: () {
+      //             final counterBloc = context.read<CounterBloc>();
+      //             counterBloc.add(CounterDecEvent());
+      //           },
+      //           icon: Icon(Icons.exposure_minus_1)
+      //       ),
+      //       IconButton(
+      //           onPressed: () {
+      //             final userBloc = context.read<UserBloc>();
+      //             final counterBloc = context.read<CounterBloc>();
+      //             userBloc.add(UserGetUsersEvent(counterBloc.state));
+      //           },
+      //           icon: Icon(Icons.person)
+      //       ),
+      //       IconButton(
+      //           onPressed: () {
+      //             final userBloc = context.read<UserBloc>();
+      //             final counterBloc = context.read<CounterBloc>();
+      //             // Navigator.push(context,
+      //             //     MaterialPageRoute(
+      //             //       builder: (_) => Job(userBloc: userBloc),
+      //             //       )
+      //             //     )
+      //             // );
+      //
+      //             // Navigator.push(context,
+      //             //     MaterialPageRoute(
+      //             //       builder: (_) => BlocProvider.value(
+      //             //         value: userBloc,
+      //             //         child: Job(),
+      //             //       )
+      //             //     )
+      //             // );
+      //
+      //             Navigator.push(context,
+      //                 MaterialPageRoute(
+      //                     builder: (_) => Job()
+      //                 )
+      //             );
+      //             userBloc.add(UserGetUsersJobEvent(counterBloc.state));
+      //           },
+      //           icon: Icon(Icons.work)
+      //       )
+      //     ],
+      //   ),
+      // ),
+      
       body: SafeArea(
         child: Center(
           child: Column(
