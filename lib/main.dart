@@ -13,37 +13,28 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: Wrapper(),
-    );
-  }
-}
-
-class Wrapper extends StatelessWidget {
-  const Wrapper({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
     final counterBloc = CounterBloc();
 
     return MultiBlocProvider(
       providers: [
-        BlocProvider<CounterBloc>(
+        BlocProvider(
           create: (context) => counterBloc,
+          lazy: true,
         ),
-        BlocProvider<UserBloc>(
+        BlocProvider(
           create: (context) => UserBloc(counterBloc),
         ),
       ],
-      child: MyHomePage(),
+      child: MaterialApp(
+        title: 'Flutter Demo',
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+        ),
+        home: MyHomePage(),
+      ),
     );
   }
 }
-
 
 class MyHomePage extends StatelessWidget {
   const MyHomePage({Key? key}) : super(key: key);
@@ -82,6 +73,27 @@ class MyHomePage extends StatelessWidget {
               onPressed: () {
                 final userBloc = context.read<UserBloc>();
                 final counterBloc = context.read<CounterBloc>();
+                // Navigator.push(context,
+                //     MaterialPageRoute(
+                //       builder: (_) => Job(userBloc: userBloc),
+                //       )
+                //     )
+                // );
+
+                // Navigator.push(context,
+                //     MaterialPageRoute(
+                //       builder: (_) => BlocProvider.value(
+                //         value: userBloc,
+                //         child: Job(),
+                //       )
+                //     )
+                // );
+
+                Navigator.push(context,
+                    MaterialPageRoute(
+                        builder: (_) => Job()
+                    )
+                );
                 userBloc.add(UserGetUsersJobEvent(counterBloc.state));
               },
               icon: Icon(Icons.work)
@@ -96,7 +108,8 @@ class MyHomePage extends StatelessWidget {
                 // bloc: counterBloc,
                 builder: (context, state) {
                   // final bloc = context.watch<UserBloc>();
-                  final users = context.select((UserBloc bloc) => bloc.state.users);
+                  final users = context.select((UserBloc bloc) =>
+                  bloc.state.users);
 
                   return Column(
                     children: [
@@ -113,26 +126,6 @@ class MyHomePage extends StatelessWidget {
                   );
                 },
               ),
-              BlocBuilder<UserBloc, UserState>(
-                // bloc: userBloc,
-                builder: (context, state) {
-                  final users = state.users;
-                  final jobs = state.jobs;
-
-                  return Column(
-                    children: [
-                      if (state.isLoading) CircularProgressIndicator(),
-
-                      if (jobs.isNotEmpty)
-                        ...jobs.map((e) =>
-                            Text(e.name,
-                              style: TextStyle(fontSize: 33),
-                            ),
-                        ),
-                    ],
-                  );
-                },
-              ),
             ],
           ),
         ),
@@ -141,3 +134,34 @@ class MyHomePage extends StatelessWidget {
   }
 }
 
+class Job extends StatelessWidget {
+  // final UserBloc userBloc;
+
+  // const Job({Key? key, required this.userBloc}) : super(key: key);
+  const Job({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(),
+      body: BlocBuilder<UserBloc, UserState>(
+        builder: (context, state) {
+          final jobs = state.jobs;
+
+          return Column(
+            children: [
+              if (state.isLoading) CircularProgressIndicator(),
+
+              if (jobs.isNotEmpty)
+                ...jobs.map((e) =>
+                    Text(e.name,
+                      style: TextStyle(fontSize: 33),
+                    ),
+                ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+}
