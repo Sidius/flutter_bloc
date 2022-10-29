@@ -1,4 +1,5 @@
 import 'package:bloc_project/counter_bloc.dart';
+import 'package:bloc_project/search_bloc/search_bloc.dart';
 import 'package:bloc_project/user_bloc/user_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -10,34 +11,97 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
+  // Lesson 7
   @override
   Widget build(BuildContext context) {
-    final counterBloc = CounterBloc();
-
     return MultiBlocProvider(
       providers: [
         BlocProvider(
-          create: (context) => counterBloc,
-          lazy: true,
-        ),
-        BlocProvider(
-          create: (context) => UserBloc(counterBloc),
+          create: (context) => SearchBloc(),
         ),
       ],
       child: MaterialApp(
         title: 'Flutter Demo',
         theme: ThemeData(
-          primarySwatch: Colors.blue,
+          textTheme: const TextTheme(
+            bodyText1: TextStyle(fontSize: 33),
+            subtitle1: TextStyle(fontSize: 22)
+          )
         ),
-        home: MyHomePage(),
+        home: const Scaffold(
+          body: SafeArea(
+            child: MyHomePage(),
+          ),
+        ),
       ),
+    );
+  }
+
+  // @override
+  // Widget build(BuildContext context) {
+  //   final counterBloc = CounterBloc();
+  //
+  //   return MultiBlocProvider(
+  //     providers: [
+  //       BlocProvider(
+  //         create: (context) => counterBloc,
+  //         lazy: true,
+  //       ),
+  //       BlocProvider(
+  //         create: (context) => UserBloc(counterBloc),
+  //       ),
+  //     ],
+  //     child: MaterialApp(
+  //       title: 'Flutter Demo',
+  //       theme: ThemeData(
+  //         primarySwatch: Colors.blue,
+  //       ),
+  //       home: MyHomePage(),
+  //     ),
+  //   );
+  // }
+}
+
+// Lesson 7
+class MyHomePage extends StatelessWidget {
+  const MyHomePage({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final users = context.select((SearchBloc bloc) => bloc.state.users);
+
+    return Column(
+      children: [
+        const Text("Search User"),
+        const SizedBox(height: 20,),
+        TextFormField(
+          decoration: const InputDecoration(
+            hintText: "User name",
+            prefixIcon: Icon(Icons.search),
+            border: OutlineInputBorder()
+          ),
+          onChanged: (value) {
+            context.read<SearchBloc>().add(SearchUserEvent(value));
+          },
+        ),
+        if (users.isNotEmpty)
+          Expanded(
+            child: ListView.builder(
+              itemBuilder: (context, index) {
+                return ListTile(
+                  title: Text(users[index]['username']),
+                );
+              },
+              itemCount: users.length,
+            ),
+          ),
+      ],
     );
   }
 }
 
-class MyHomePage extends StatelessWidget {
-  const MyHomePage({Key? key}) : super(key: key);
+class MyHomePageOld extends StatelessWidget {
+  const MyHomePageOld({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -48,13 +112,12 @@ class MyHomePage extends StatelessWidget {
         listenWhen: (previous, current) => previous > current,
         listener: (context, state) {
           if (state == 0) {
-            Scaffold.of(context).showBottomSheet(
-                    (context) => Container(
-                  color: Colors.blue,
-                  width: double.infinity,
-                  height: 30,
-                  child: Text('State is 0'),
-                )
+            Scaffold.of(context).showBottomSheet((context) => Container(
+                color: Colors.blue,
+                width: double.infinity,
+                height: 30,
+                child: Text('State is 0'),
+              )
             );
           }
         },
@@ -188,7 +251,7 @@ class MyHomePage extends StatelessWidget {
       //     ],
       //   ),
       // ),
-      
+
       body: SafeArea(
         child: Center(
           child: Column(
